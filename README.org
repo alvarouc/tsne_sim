@@ -1,0 +1,3 @@
+#+TITLE: TSNE + Gower simulation
+
+Load dependencies 
