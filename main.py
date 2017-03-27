@@ -33,7 +33,7 @@ X, y = make_classification(n_samples=N_SAMPLES,
                            n_informative=N_FEATURES_CONT + N_FEATURES_CAT,
                            n_redundant=N_FEATURES_NOISE,
                            n_classes=N_CLUSTERS,
-                           class_sep=2,
+                           class_sep=10,
                            n_clusters_per_class = 1,
                            shuffle=False,
                            random_state=1988)
@@ -44,18 +44,18 @@ logger.info('Prediction score : {}'.format(
 # quantize features
 X[:,:N_FEATURES_CAT] = np.apply_along_axis(
     cat3, axis=0, arr=X[:,:N_FEATURES_CAT])
-logger.info('Prediction score q : {}'.format(
+logger.info('Prediction score after quantiation : {}'.format(
     np.mean(cross_val_score(RFC(), X, y))))
 
             
 dist = compute_sim(X, cat_idx=np.arange(0,N_FEATURES_CAT))
 #from sklearn.metrics.pairwise import pairwise_distances
 #dist = pairwise_distances(X, None, 'euclidean')
-ts = TSNE(perplexity=10, metric='precomputed', early_exaggeration=10)
+ts = TSNE(perplexity=10, metric='precomputed', early_exaggeration=500)
 X2 = ts.fit_transform(dist)
 logger.info('Prediction score tsne : {}'.format(
     np.mean(cross_val_score(RFC(), X2, y))))
 
 logger.info('KL divergence: {}'.format(ts.kl_divergence_))
 plt.scatter(X2[:,0], X2[:,1], c=y)
-plt.show()
+plt.savefig('tsne_result.png')

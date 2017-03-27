@@ -1,3 +1,7 @@
 #+TITLE: TSNE + Gower simulation
 
-Load dependencies 
+Running classifier after TSNE gives worse prediction scores
+
+#+CAPTION: This is the caption for the next figure link (or table)
+#+NAME:   fig:SED-HR4049
+[[./tsne_result.png]] 
