@@ -10,7 +10,7 @@ def gower(xi,xj, cat_idx, ranges):
 def compute_sim(X, cat_idx):
     X[:,~cat_idx] = X[:,~cat_idx]/X[:,~cat_idx].max(axis=0)
     ranges = np.ptp(X, axis=0)
-    d = pairwise_distances(X,
+    d = pairwise_distances(X,None,
                            partial(gower,
                                    cat_idx=cat_idx,
                                    ranges=ranges),

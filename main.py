@@ -1,7 +1,13 @@
-from sklearn.datasets import make_classification
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import make_classification
 from gower_pdist import compute_sim
+from sklearn.manifold import TSNE
+
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Convert continuous vector to 3 level categorical
 def cat3(vector):
@@ -33,7 +39,7 @@ X[:,:N_FEATURES_CAT] = np.apply_along_axis(
     cat3, axis=0, arr=X[:,:N_FEATURES_CAT])
 
 dist = compute_sim(X, cat_idx=np.arange(0,N_FEATURES_CAT))
-
-
-
-
+ts = TSNE(perplexity=100, metric='precomputed', early_exaggeration=2)
+X2 = ts.fit_transform(dist)
+plt.scatter(X2[:,0], X2[:,1], c=y)
+plt.show()
