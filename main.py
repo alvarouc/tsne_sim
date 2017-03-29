@@ -16,7 +16,7 @@ def cat3(vector):
     """
     quantize a vector into 3 levels
     """
-    return pd.qcut(vector, [0,.33,.66,1]).codes - 2
+    return pd.qcut(vector, [0,.33,.66,1]).codes
 
 # Simulation parameters
 N_SAMPLES = 500
@@ -48,9 +48,9 @@ logger.info('Prediction score after quantiation : {}'.format(
     np.mean(cross_val_score(RFC(), X, y))))
 
             
-#dist = compute_sim(X, cat_idx=np.arange(0,N_FEATURES_CAT))
-from sklearn.metrics.pairwise import pairwise_distances
-dist = pairwise_distances(X, None, 'euclidean')
+dist = compute_sim(X, cat_idx=np.arange(0,N_FEATURES_CAT))
+#from sklearn.metrics.pairwise import pairwise_distances
+#dist = pairwise_distances(X, None, 'euclidean')
 ts = TSNE(perplexity=10, metric='precomputed', early_exaggeration=500)
 X2 = ts.fit_transform(dist)
 logger.info('Prediction score tsne : {}'.format(

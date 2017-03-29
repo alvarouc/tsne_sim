@@ -8,12 +8,10 @@ def gower(xi,xj, cat_idx, ranges):
     return (cat+con)/len(ranges)
 
 def compute_sim(X, cat_idx):
-    X[:,~cat_idx] = X[:,~cat_idx]/X[:,~cat_idx].max(axis=0)
-    ranges = np.ptp(X, axis=0)
-    d = pairwise_distances(X,None,
+    Xsd = (X - X.min(axis=0))/X.ptp(axis=0)
+    d = pairwise_distances(Xsd, None,
                            partial(gower,
-                                   cat_idx=cat_idx,
-                                   ranges=ranges),
+                                   cat_idx=cat_idx),
                            n_jobs=-1)
     return d
 
