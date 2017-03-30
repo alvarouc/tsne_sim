@@ -72,13 +72,11 @@ def compute_tsne(X, cat_bool):
 
     ts = TSNE(perplexity=30, metric='precomputed')
     X2 = ts.fit_transform(dist)
-
-    logger.info('Prediction score tsne : {}'.format(
-        np.mean(cross_val_score(RFC(), X2, y))))
-
     logger.info('KL divergence: {}'.format(ts.kl_divergence_))
-    plt.scatter(X2[:,0], X2[:,1], c=y, alpha=0.8, marker='.')
-    plt.savefig('tsne_result.png')
+    return X2
+    
+    #plt.scatter(X2[:,0], X2[:,1], c=y, alpha=0.8, marker='.')
+    #plt.savefig('tsne_result.png')
 
 def main():
 
@@ -103,10 +101,14 @@ def main():
            X, y, cat_bool = prep_data(*(n_samples, n_real,
                                         n_categorical, n_noisy,
                                         n_clusters))
-           np.savetxt('X_real_{}_cat_{}_noise_{}.txt', X)
-           np.savetxt('y_real_{}_cat_{}_noise_{}.txt', y)
-           np.savetxt('catIdx_real_{}_cat_{}_noise_{}.txt', catbool)
-           
+           #np.savetxt('X_real_{}_cat_{}_noise_{}.txt', X)
+           #np.savetxt('y_real_{}_cat_{}_noise_{}.txt', y)
+           #np.savetxt('catIdx_real_{}_cat_{}_noise_{}.txt', catbool)
+           X2 = compute_tsne(X, cat_bool)
+           scores = cross_val_score(RFC(), X2, y)
+           logger.info('Prediction score tsne : {}'.format(np.mean(scores)))
+
+
 if __name__== "__main__":
 
     main()
