@@ -77,84 +77,22 @@ def compute_tsne(X, cat_bool):
 
 def main():
 
-    #-Cluster label predicted by quantitative variables only
-    #-Cluster label predicted by categorical variables only
-    #-Cluster label predicted by both categorical and quantitative variables
-
     #1. All variables are predictive
-    X, y, cat_bool = prep_data(n_samples=5000,
-                               n_real=10,
-                               n_categorical=0,
-                               n_noisy=0,
-                               n_cluters=3)
-
-    X, y, cat_bool = prep_data(n_samples=5000,
-                               n_real=0,
-                               n_categorical=10,
-                               n_noisy=0,
-                               n_cluters=3)
-
-    X, y, cat_bool = prep_data(n_samples=5000,
-                               n_real=5,
-                               n_categorical=5,
-                               n_noisy=0,
-                               n_cluters=3)
-    
     #2. Most variables are predictive (n=8); some noise (n=2)
-
-    X, y, cat_bool = prep_data(n_samples=5000,
-                               n_real=8,
-                               n_categorical=0,
-                               n_noisy=2,
-                               n_cluters=3)
-
-    X, y, cat_bool = prep_data(n_samples=5000,
-                               n_real=0,
-                               n_categorical=8,
-                               n_noisy=2,
-                               n_cluters=3)
-
-    X, y, cat_bool = prep_data(n_samples=5000,
-                               n_real=4,
-                               n_categorical=4,
-                               n_noisy=2,
-                               n_cluters=3)
-
     #3. Equal number of predictive variables (n=5), noisy variables (n=5)
-    X, y, cat_bool = prep_data(n_samples=5000,
-                               n_real=5,
-                               n_categorical=0,
-                               n_noisy=5,
-                               n_cluters=3)
-
-    X, y, cat_bool = prep_data(n_samples=5000,
-                               n_real=0,
-                               n_categorical=5,
-                               n_noisy=5,
-                               n_cluters=3)
-
-    X, y, cat_bool = prep_data(n_samples=5000,
-                               n_real=2,
-                               n_categorical=3,
-                               n_noisy=5,
-                               n_cluters=3)
-
     #4. Most variables are noisy (n=8); small number of predictive variables (n=2)
-    X, y, cat_bool = prep_data(n_samples=5000,
-                               n_real=2,
-                               n_categorical=0,
-                               n_noisy=8,
-                               n_cluters=3)
+    for n_noisy in [0,2,5,8]:
+        n_predictive = 10 - n_noisy
 
-    X, y, cat_bool = prep_data(n_samples=5000,
-                               n_real=0,
-                               n_categorical=2,
-                               n_noisy=8,
-                               n_cluters=3)
+        #-Cluster label predicted by quantitative variables only
+        #-Cluster label predicted by categorical variables only
+        #-Cluster label predicted by both categorical and quantitative variables
+        for p in [0, .5, 1]:
+           n_categorical = round(n_feat * p)
+           n_real = n_predictive-n_categorical
+           logger.info('N_REAL: {}, N_CATEGORICAL: {}, N_NOISY: {}'.format(n_real, n_categorical, n_noisy))
+           X, y, cat_bool = prep_data(n_samples=5000,
+                                      n_cluters=3,
+                                      **(n_real, n_categorical, n_predictive))
 
-    X, y, cat_bool = prep_data(n_samples=5000,
-                               n_real=1,
-                               n_categorical=1,
-                               n_noisy=8,
-                               n_cluters=3)
 
