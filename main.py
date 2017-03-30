@@ -47,7 +47,6 @@ X[:,:N_FEATURES_CAT] = np.apply_along_axis(
 logger.info('Prediction score after quantiation : {}'.format(
     np.mean(cross_val_score(RFC(), X, y))))
 
-            
 dist = compute_sim(X, cat_idx=np.arange(0,N_FEATURES_CAT))
 #from sklearn.metrics.pairwise import pairwise_distances
 #dist = pairwise_distances(X, None, 'euclidean')
