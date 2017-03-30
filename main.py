@@ -82,11 +82,12 @@ def prep_data(n_samples=500, n_real=5, n_categorical=3, n_noisy=2, n_clusters=3)
 
 def compute_tsne(X, cat_bool):
 
+    logger.info('Computing Gower pair-wise distance')
     dist = compute_sim(X, cat_bool)
-
+    logger.info('Computing TSNE')
     ts = TSNE(perplexity=30, metric='precomputed')
     X2 = ts.fit_transform(dist)
-    logger.info('KL divergence: {}'.format(ts.kl_divergence_))
+    logger.info('Done: KL divergence = {}'.format(ts.kl_divergence_))
     return X2
     
     #plt.scatter(X2[:,0], X2[:,1], c=y, alpha=0.8, marker='.')
