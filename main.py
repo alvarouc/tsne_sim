@@ -8,7 +8,7 @@ from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.model_selection import cross_val_score
 
 import logging
-logging.basicConfig(level=logging.INFO)
+#logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('TSNE_sim')
 # create file handler which logs even debug messages
 fh = logging.FileHandler('sim.log')
@@ -76,7 +76,7 @@ def prep_data(n_samples=500, n_real=5, n_categorical=3, n_noisy=2, n_clusters=3)
         logger.info('Prediction score after quantization : {}'.format(
             np.mean(cross_val_score(RFC(), X, y))))
 
-    cat_bool = np.arange(n_features)<n_categorical
+    cat_bool = np.arange(n_features+n_noisy)<n_categorical
     return (X, y, cat_bool)
 
 
