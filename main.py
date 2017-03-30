@@ -74,3 +74,87 @@ def compute_tsne(X, cat_bool):
     logger.info('KL divergence: {}'.format(ts.kl_divergence_))
     plt.scatter(X2[:,0], X2[:,1], c=y, alpha=0.8, marker='.')
     plt.savefig('tsne_result.png')
+
+def main():
+
+    #-Cluster label predicted by quantitative variables only
+    #-Cluster label predicted by categorical variables only
+    #-Cluster label predicted by both categorical and quantitative variables
+
+    #1. All variables are predictive
+    X, y, cat_bool = prep_data(n_samples=5000,
+                               n_real=10,
+                               n_categorical=0,
+                               n_noisy=0,
+                               n_cluters=3)
+
+    X, y, cat_bool = prep_data(n_samples=5000,
+                               n_real=0,
+                               n_categorical=10,
+                               n_noisy=0,
+                               n_cluters=3)
+
+    X, y, cat_bool = prep_data(n_samples=5000,
+                               n_real=5,
+                               n_categorical=5,
+                               n_noisy=0,
+                               n_cluters=3)
+    
+    #2. Most variables are predictive (n=8); some noise (n=2)
+
+    X, y, cat_bool = prep_data(n_samples=5000,
+                               n_real=8,
+                               n_categorical=0,
+                               n_noisy=2,
+                               n_cluters=3)
+
+    X, y, cat_bool = prep_data(n_samples=5000,
+                               n_real=0,
+                               n_categorical=8,
+                               n_noisy=2,
+                               n_cluters=3)
+
+    X, y, cat_bool = prep_data(n_samples=5000,
+                               n_real=4,
+                               n_categorical=4,
+                               n_noisy=2,
+                               n_cluters=3)
+
+    #3. Equal number of predictive variables (n=5), noisy variables (n=5)
+    X, y, cat_bool = prep_data(n_samples=5000,
+                               n_real=5,
+                               n_categorical=0,
+                               n_noisy=5,
+                               n_cluters=3)
+
+    X, y, cat_bool = prep_data(n_samples=5000,
+                               n_real=0,
+                               n_categorical=5,
+                               n_noisy=5,
+                               n_cluters=3)
+
+    X, y, cat_bool = prep_data(n_samples=5000,
+                               n_real=2,
+                               n_categorical=3,
+                               n_noisy=5,
+                               n_cluters=3)
+
+    #4. Most variables are noisy (n=8); small number of predictive variables (n=2)
+    X, y, cat_bool = prep_data(n_samples=5000,
+                               n_real=2,
+                               n_categorical=0,
+                               n_noisy=8,
+                               n_cluters=3)
+
+    X, y, cat_bool = prep_data(n_samples=5000,
+                               n_real=0,
+                               n_categorical=2,
+                               n_noisy=8,
+                               n_cluters=3)
+
+    X, y, cat_bool = prep_data(n_samples=5000,
+                               n_real=1,
+                               n_categorical=1,
+                               n_noisy=8,
+                               n_cluters=3)
+
