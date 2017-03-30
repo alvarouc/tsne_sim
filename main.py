@@ -86,7 +86,7 @@ def main():
     #2. Most variables are predictive (n=8); some noise (n=2)
     #3. Equal number of predictive variables (n=5), noisy variables (n=5)
     #4. Most variables are noisy (n=8); small number of predictive variables (n=2)
-    n_samples = 500
+    n_samples = 5000
     n_clusters = 3
     
     for n_noisy in [0,2,5,8]:
@@ -103,7 +103,9 @@ def main():
            X, y, cat_bool = prep_data(*(n_samples, n_real,
                                         n_categorical, n_noisy,
                                         n_clusters))
-
+           np.savetxt('X_real_{}_cat_{}_noise_{}.txt', X)
+           np.savetxt('y_real_{}_cat_{}_noise_{}.txt', y)
+           np.savetxt('catIdx_real_{}_cat_{}_noise_{}.txt', catbool)
            
 if __name__== "__main__":
 
