@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from itertools import starmap
+from collections import namedtuple
 from sklearn.datasets import make_classification
 from gower_pdist import compute_sim
 from sklearn.manifold import TSNE
@@ -88,7 +89,7 @@ def compute_tsne(X, cat_bool):
     ts = TSNE(perplexity=30, metric='precomputed')
     X2 = ts.fit_transform(dist)
     logger.info('Done: KL divergence = {:.2}'.format(ts.kl_divergence_))
-    return X2
+    return X2, ts.kl_divergence_
     
 def compute_params():
 
@@ -101,49 +102,49 @@ def compute_params():
     #-Cluster label predicted by categorical variables only
     #-Cluster label predicted by both categorical and quantitative variables
 
-    n_samples = 500
+    n_samples = 5000
     n_clusters = 3
 
-    params = {'n_samples':[],
-              'n_real': [],
-              'n_categorical': [],
-              'n_noisy': [],
-              'n_clusters': []}
-    
+    param = namedtuple('params',
+                       ['n_samples','n_real',
+                        'n_categorical', 'n_noisy',
+                        'n_clusters'])
+    params = []
     for n_noisy in [0,2,5,8]:
         n_predictive = 10 - n_noisy
         for p in [0, .5, 1]:
             
             n_categorical = round(n_predictive * p)
             n_real = n_predictive-n_categorical
-            params['n_samples'].append(n_samples)
-            params['n_real'].append(n_real)
-            params['n_categorical'].append(n_categorical)
-            params['n_noisy'].append(n_noisy)
-            params['n_clusters'].append(n_clusters)
-            
+            params.append( param(n_samples=n_samples,
+                                 n_real=n_real,
+                                 n_categorical=n_categorical,
+                                 n_noisy=n_noisy,
+                                 n_clusters=n_clusters))   
                         
     return params
 
-def compute_sim_tsne(args):
+def run_sim(n_samples, n_real, n_categorical, n_noisy, n_clusters):
     
-    X, y, cat_bool = prep_data(*(n_samples, n_real,
-                                n_categorical, n_noisy,
-                                n_clusters))
-    X2 = compute_tsne(X, cat_bool)
-    plt.scatter(X2[:,0], X2[:,1], c=y, alpha=0.8, marker='.')
-    plt.savefig('tsne_result.png')
-            
+    X, y, cat_bool = prep_data(n_samples= n_samples,
+                               n_real= n_real,
+                               n_categorical= n_categorical,
+                               n_noisy= n_noisy,
+                               n_clusters= n_clusters)
+    X2, kl = compute_tsne(X, cat_bool)
     scores = cross_val_score(RFC(), X2, y)
     logger.info('Prediction score tsne : {:.2}'.format(np.mean(scores)))
-
+    return (np.mean(scores), kl)
+    #plt.scatter(X2[:,0], X2[:,1], c=y, alpha=0.8, marker='.')
+    #plt.savefig('tsne_result.png')
+            
 
 if __name__== "__main__":
 
     params = compute_params()
-
-    results = pd.DataFrame.from_dict(params)
-
-    starmap(compute_sim_tsne,
-            [x.to_dict() for _, x in params.iterrows()])
+    results = list(starmap(run_sim, params))
     
+    df = pd.concat( (pd.DataFrame(params),
+                     pd.DataFrame(results,
+                                  columns=['TSNE_score', 'TSNE_kl'])),
+                    axis=1)
