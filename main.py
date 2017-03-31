@@ -148,3 +148,5 @@ if __name__== "__main__":
                      pd.DataFrame(results,
                                   columns=['TSNE_score', 'TSNE_kl'])),
                     axis=1)
+
+    df.to_csv('TSNE_simulation.csv')
