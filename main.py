@@ -105,7 +105,7 @@ def main():
                                         n_clusters))
            np.savetxt('X_real_{}_cat_{}_noise_{}.txt', X)
            np.savetxt('y_real_{}_cat_{}_noise_{}.txt', y)
-           np.savetxt('catIdx_real_{}_cat_{}_noise_{}.txt', catbool)
+           np.savetxt('catIdx_real_{}_cat_{}_noise_{}.txt', cat_bool)
            
 if __name__== "__main__":
 
