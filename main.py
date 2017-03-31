@@ -59,7 +59,7 @@ def prep_data(n_samples=500, n_real=5, n_categorical=3, n_noisy=2, n_clusters=3)
                                n_classes=n_clusters,
                                n_redundant=0,
                                n_repeated=0,
-                               class_sep=10,
+                               class_sep=2,
                                n_clusters_per_class = 1,
                                shuffle=False,
                                random_state=1988)
