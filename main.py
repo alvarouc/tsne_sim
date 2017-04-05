@@ -9,6 +9,9 @@ from sklearn.manifold import TSNE
 from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.model_selection import cross_val_score
 from autoencoder import build_autoencoder
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 
 import logging
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -184,6 +187,22 @@ def run_sim(n_samples, n_real, n_categorical, n_noisy, n_clusters):
             'ae': ae_score, 'ae_loss': ae_loss,
             'ae+tsne': ae_tsne_score, 'ae+tsne_loss': ae_tsne_loss}
 
+
+def plot(df):
+    plt.figure()
+    dfm = pd.melt(df, value_vars=['ae','tsne', 'ae+tsne'], id_vars=['n_noisy', 'n_real'])
+    sns.lmplot(data = dfm, x='n_noisy', y='value', hue='variable', 
+               hue_order=['tsne', 'ae+tsne', 'ae'])
+    plt.ylabel('RF score')
+    plt.savefig('score_noisy.png')
+
+    plt.figure()
+    dfm = pd.melt(df, value_vars=['ae_loss','tsne_kl', 'ae+tsne_loss'], id_vars=['n_noisy', 'n_real'])
+    sns.lmplot(data = dfm, x='n_noisy', y='value', hue='variable', 
+               hue_order=['tsne_kl', 'ae+tsne_loss', 'ae_loss'])
+    plt.ylabel('Loss')
+    plt.savefig('loss_noisy.png')
+    
 
 if __name__== "__main__":
 
