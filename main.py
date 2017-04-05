@@ -90,7 +90,11 @@ def compute_tsne(X, cat_bool):
     X2 = ts.fit_transform(dist)
     logger.info('Done: KL divergence = {:.2}'.format(ts.kl_divergence_))
     return X2, ts.kl_divergence_
-    
+
+def compute_ae(X):
+
+    logger.info('Computing autoencoder')
+
 def compute_params():
 
     #1. All variables are predictive
