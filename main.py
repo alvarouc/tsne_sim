@@ -8,6 +8,7 @@ from gower_pdist import compute_sim
 from sklearn.manifold import TSNE
 from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.model_selection import cross_val_score
+from autoencoder import build_autoencoder
 
 import logging
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -94,6 +95,29 @@ def compute_tsne(X, cat_bool):
 def compute_ae(X):
 
     logger.info('Computing autoencoder')
+    Xs = (X-X.min(axis=0))/X.max(axis=0)
+    ae, enc = build_autoencoder(Xs.shape[1], layers_dim = [100,2],
+                                activations=['relu', 'sigmoid'],
+                                inits=['glorot_uniform', 'glorot_normal'],
+                                optimizer='adadelta',
+                                loss='mse')
+    h = ae.fit(Xs,Xs, batch_size=64, epochs=50, verbose=0)
+    X2 = enc.predict(Xs)
+    return X2, h.history['loss'][-1]
+
+def compute_ae_tsne(X, cat_bool):
+
+    Xs = (X-X.min(axis=0))/X.max(axis=0)
+    ae, enc = build_autoencoder(Xs.shape[1], layers_dim = [10,5],
+                                activations=['relu', 'sigmoid'],
+                                inits=['glorot_uniform', 'glorot_normal'],
+                                optimizer='adadelta',
+                                loss='mse')
+    h = ae.fit(Xs,Xs, batch_size=64, epochs=50, verbose=0)
+    X5 = enc.predict(Xs)
+    ts = TSNE(perplexity=30, metric='euclidean')
+    X2 = ts.fit_transform(X5)
+    return X2, ts.kl_divergence_
 
 def compute_params():
 
@@ -106,7 +130,7 @@ def compute_params():
     #-Cluster label predicted by categorical variables only
     #-Cluster label predicted by both categorical and quantitative variables
 
-    n_samples = 5000
+    n_samples = 500
     n_clusters = 3
 
     param = namedtuple('params',
@@ -140,11 +164,25 @@ def run_sim(n_samples, n_real, n_categorical, n_noisy, n_clusters):
     #                                       n_categorical, n_noisy), y)
     # np.savetxt('cat_{}_{}_{}_{}.npy'.format(n_samples, n_real,
     #                                         n_categorical, n_noisy), cat_bool)
-    
+
+    logger.info('Running TSNE simulation')
     X2 , kl = compute_tsne(X, cat_bool)
-    scores = cross_val_score(RFC(), X2, y)
-    logger.info('Prediction score tsne : {:.2}'.format(np.mean(scores)))
-    return (np.mean(scores), kl)
+    tsne_score = np.mean(cross_val_score(RFC(), X2, y))
+    logger.info('TSNE prediction score: {:.2}'.format(tsne_score))
+
+    logger.info('Running AE simulation')
+    X2 , ae_loss = compute_ae(X)
+    ae_score = np.mean(cross_val_score(RFC(), X2, y))
+    logger.info('AE prediction score: {:.2}'.format(ae_score))
+
+    logger.info('Running AE+tsne simulation')
+    X2 , ae_tsne_loss = compute_ae_tsne(X, cat_bool)
+    ae_tsne_score = np.mean(cross_val_score(RFC(), X2, y))
+    logger.info('AE+TSNE prediction score: {:.2}'.format(ae_tsne_score))
+    
+    return {'tsne':tsne_score, 'tsne_kl':kl,
+            'ae': ae_score, 'ae_loss': ae_loss,
+            'ae+tsne': ae_tsne_score, 'ae+tsne_loss': ae_tsne_loss}
 
 
 if __name__== "__main__":
@@ -153,8 +191,7 @@ if __name__== "__main__":
     results = list(starmap(run_sim, params))
     
     df = pd.concat( (pd.DataFrame(params),
-                     pd.DataFrame(results,
-                                  columns=['TSNE_score', 'TSNE_kl'])),
+                     pd.DataFrame(results)),
                     axis=1)
 
-    df.to_csv('TSNE_simulation.csv')
+    df.to_csv('TSNE_simulation.csv', index=False)
