@@ -131,13 +131,18 @@ def run_sim(n_samples, n_real, n_categorical, n_noisy, n_clusters):
                                n_categorical= n_categorical,
                                n_noisy= n_noisy,
                                n_clusters= n_clusters)
-    X2, kl = compute_tsne(X, cat_bool)
+    # np.savetxt('X_{}_{}_{}_{}.npy'.format(n_samples, n_real,
+    #                                       n_categorical, n_noisy), X)
+    # np.savetxt('Y_{}_{}_{}_{}.npy'.format(n_samples, n_real,
+    #                                       n_categorical, n_noisy), y)
+    # np.savetxt('cat_{}_{}_{}_{}.npy'.format(n_samples, n_real,
+    #                                         n_categorical, n_noisy), cat_bool)
+    
+    X2 , kl = compute_tsne(X, cat_bool)
     scores = cross_val_score(RFC(), X2, y)
     logger.info('Prediction score tsne : {:.2}'.format(np.mean(scores)))
     return (np.mean(scores), kl)
-    #plt.scatter(X2[:,0], X2[:,1], c=y, alpha=0.8, marker='.')
-    #plt.savefig('tsne_result.png')
-            
+
 
 if __name__== "__main__":
 
