@@ -96,7 +96,7 @@ def compute_ae(X):
 
     logger.info('Computing autoencoder')
     Xs = (X-X.min(axis=0))/X.max(axis=0)
-    ae, enc = build_autoencoder(Xs.shape[1], layers_dim = [100,2],
+    ae, enc = build_autoencoder(Xs.shape[1], layers_dim = [10,2],
                                 activations=['relu', 'sigmoid'],
                                 inits=['glorot_uniform', 'glorot_normal'],
                                 optimizer='adadelta',
@@ -130,7 +130,7 @@ def compute_params():
     #-Cluster label predicted by categorical variables only
     #-Cluster label predicted by both categorical and quantitative variables
 
-    n_samples = 500
+    n_samples = 5000
     n_clusters = 3
 
     param = namedtuple('params',
