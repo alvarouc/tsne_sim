@@ -11,8 +11,6 @@ from sklearn.model_selection import cross_val_score
 from sklearn.decomposition import PCA
 from autoencoder import build_autoencoder
 import seaborn as sns
-import matplotlib.pyplot as plt
-
 
 import logging
 formatter = logging.Formatter(
@@ -94,20 +92,22 @@ def compute_pca(X):
     logger.info('Computing PCA')
     pca = PCA(n_components=2, whiten=True)
     X2 = pca.fit_transform(X - X.mean(axis=0))
-    logger.info('Done: PCA divergence = {:.2}'.format())
+    logger.info('Done: PCA loss = {:.2}'.format(
+        1 - pca.explained_variance_ratio_.sum()))
     return X2, 1 - pca.explained_variance_ratio_.sum()
 
 
 def compute_tsne(X, cat_bool, init=None):
 
-    logger.info('Computing Gower pair-wise distance')
-    dist = compute_sim(X, cat_bool)
     logger.info('Computing TSNE')
     if init == 'pca':
-        ts = TSNE(perplexity=30, metric='precomputed', init='pca')
+        ts = TSNE(perplexity=30, metric='euclidean', init='pca')
+        X2 = ts.fit_transform(X)
     else:
+        logger.info('Computing Gower pair-wise distance')
+        dist = compute_sim(X, cat_bool)
         ts = TSNE(perplexity=30, metric='precomputed')
-    X2 = ts.fit_transform(dist)
+        X2 = ts.fit_transform(dist)
     logger.info('Done: KL divergence = {:.2}'.format(ts.kl_divergence_))
     return X2, ts.kl_divergence_
 
@@ -115,14 +115,15 @@ def compute_tsne(X, cat_bool, init=None):
 def compute_ae(X):
 
     logger.info('Computing autoencoder')
+    in_dim = X.shape[1] // 2
 
-    ae, enc = build_autoencoder(X.shape[1], layers_dim=[10, 2],
+    ae, enc = build_autoencoder(X.shape[1], layers_dim=[in_dim, 2],
                                 activations=['relu', 'sigmoid'],
-                                inits=['glorot_uniform', 'glorot_normal'],
-                                optimizer='adadelta',
+                                inits=['uniform', 'uniform'],
+                                optimizer='adagrad',
                                 loss='mse')
     Xs = (X - X.min(axis=0)) / (X.max() - X.min())
-    h = ae.fit(Xs, Xs, batch_size=64, epochs=50, verbose=0)
+    h = ae.fit(Xs, Xs, batch_size=64, epochs=10, verbose=0)
     X2 = enc.predict(Xs)
     return X2, h.history['loss'][-1]
 
@@ -135,7 +136,7 @@ def compute_ae_tsne(X, cat_bool):
                                 optimizer='adadelta',
                                 loss='mse')
     Xs = (X - X.min(axis=0)) / (X.max() - X.min())
-    h = ae.fit(Xs, Xs, batch_size=64, epochs=50, verbose=0)
+    ae.fit(Xs, Xs, batch_size=64, epochs=50, verbose=0)
     X5 = enc.predict(Xs)
     ts = TSNE(perplexity=30, metric='euclidean')
     X2 = ts.fit_transform(X5)
@@ -162,18 +163,31 @@ def compute_params():
                         'n_categorical', 'n_noisy',
                         'n_clusters'])
     params = []
-    for n_noisy in [0, 2, 5, 8]:
-        n_predictive = 10 - n_noisy
-        for p in [0, .5, 1]:
-            n_categorical = round(n_predictive * p)
-            n_real = n_predictive - n_categorical
-            params.append(param(n_samples=n_samples,
-                                n_real=n_real,
-                                n_categorical=n_categorical,
-                                n_noisy=n_noisy,
-                                n_clusters=n_clusters))
+
+    for n_vars in [50, 100, 200]:
+        for p_noisy in [0, .2, .5, .8]:
+            n_noisy = round(p_noisy * n_vars)
+            n_predictive = n_vars - n_noisy
+            for p in [0, .5, 1]:
+                n_categorical = round(n_predictive * p)
+                n_real = n_predictive - n_categorical
+                params.append(param(n_samples=n_samples,
+                                    n_real=n_real,
+                                    n_categorical=n_categorical,
+                                    n_noisy=n_noisy,
+                                    n_clusters=n_clusters))
 
     return params
+
+
+def plot_X2(X2, y, name):
+
+    plt.figure()
+    for yy in range(3):
+        plt.plot(X2[yy == y, 0],
+                 X2[yy == y, 1], '.',
+                 label='class {}'.format(yy))
+    plt.savefig(name)
 
 
 def run_sim(n_samples, n_real, n_categorical, n_noisy, n_clusters):
@@ -183,35 +197,35 @@ def run_sim(n_samples, n_real, n_categorical, n_noisy, n_clusters):
                                n_categorical=n_categorical,
                                n_noisy=n_noisy,
                                n_clusters=n_clusters)
-    # np.savetxt('X_{}_{}_{}_{}.npy'.format(n_samples, n_real,
-    #                                       n_categorical, n_noisy), X)
-    # np.savetxt('Y_{}_{}_{}_{}.npy'.format(n_samples, n_real,
-    #                                       n_categorical, n_noisy), y)
-    # np.savetxt('cat_{}_{}_{}_{}.npy'.format(n_samples, n_real,
-    # n_categorical, n_noisy), cat_bool)
 
-    logger.info('Running PCA')
+    name = '_{}_{}_{}_{}'.format(n_samples, n_real, n_categorical, n_noisy)
+
+    np.savetxt('data/X{}.csv'.format(name), X)
+    np.savetxt('data/Y{}.csv'.format(name), y)
+    np.savetxt('data/cat{}.csv'.format(name), cat_bool)
+
     X2, pca_loss = compute_pca(X)
     pca_score = np.mean(cross_val_score(RFC(), X2, y))
+    plot_X2(X2, y, 'img/pca{}.png'.format(name))
     logger.info('PCA prediction score: {:.2}'.format(pca_score))
 
-    logger.info('Running TSNE simulation')
     X2, tsne_loss = compute_tsne(X, cat_bool)
     tsne_score = np.mean(cross_val_score(RFC(), X2, y))
+    plot_X2(X2, y, 'img/tsne{}.png'.format(name))
     logger.info('TSNE prediction score: {:.2}'.format(tsne_score))
 
-    logger.info('Running PCA+TSNE simulation')
     X2, pca_tsne_loss = compute_tsne(X, cat_bool, init='pca')
+    plot_X2(X2, y, 'img/pca_tsne{}.png'.format(name))
     pca_tsne_score = np.mean(cross_val_score(RFC(), X2, y))
     logger.info('PCA+TSNE prediction score: {:.2}'.format(pca_tsne_score))
 
-    logger.info('Running AE simulation')
     X2, ae_loss = compute_ae(X)
+    plot_X2(X2, y, 'img/ae{}.png'.format(name))
     ae_score = np.mean(cross_val_score(RFC(), X2, y))
     logger.info('AE prediction score: {:.2}'.format(ae_score))
 
-    logger.info('Running AE+tsne simulation')
     X2, ae_tsne_loss = compute_ae_tsne(X, cat_bool)
+    plot_X2(X2, y, 'img/ae_tsne{}.png'.format(name))
     ae_tsne_score = np.mean(cross_val_score(RFC(), X2, y))
     logger.info('AE+TSNE prediction score: {:.2}'.format(ae_tsne_score))
 
