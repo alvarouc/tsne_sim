@@ -164,7 +164,7 @@ def compute_params():
                         'n_clusters'])
     params = []
 
-    for n_vars in [50, 100, 200]:
+    for n_vars in [20, 30, 40]:
         for p_noisy in [0, .2, .5, .8]:
             n_noisy = round(p_noisy * n_vars)
             n_predictive = n_vars - n_noisy
