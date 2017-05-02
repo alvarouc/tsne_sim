@@ -1,0 +1,13 @@
+Results on 
+
+* A). 5000_20_20_10: 80% Predictive, 20% Noisy- mixed data
+
+[[file:result_5000_20_20_10.png]]
+
+* B). 5000_25_25_0:  100% Predictive- mixed data
+
+[[file:result_5000_25_25_0.png]]
+
+* C). 5000_5_5_40:    20% Predictive, 80% Noisy- mixed data
+
+[[file:result_5000_5_5_40.png]]
