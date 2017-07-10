@@ -204,36 +204,36 @@ def run_sim(n_samples, n_real, n_categorical, n_noisy, n_clusters):
     np.savetxt('data/Y{}.csv'.format(name), y)
     np.savetxt('data/cat{}.csv'.format(name), cat_bool)
 
-    X2, pca_loss = compute_pca(X)
-    pca_score = np.mean(cross_val_score(RFC(), X2, y))
-    plot_X2(X2, y, 'img/pca{}.png'.format(name))
-    logger.info('PCA prediction score: {:.2}'.format(pca_score))
+    # X2, pca_loss = compute_pca(X)
+    # pca_score = np.mean(cross_val_score(RFC(), X2, y))
+    # plot_X2(X2, y, 'img/pca{}.png'.format(name))
+    # logger.info('PCA prediction score: {:.2}'.format(pca_score))
 
-    X2, tsne_loss = compute_tsne(X, cat_bool)
-    tsne_score = np.mean(cross_val_score(RFC(), X2, y))
-    plot_X2(X2, y, 'img/tsne{}.png'.format(name))
-    logger.info('TSNE prediction score: {:.2}'.format(tsne_score))
+    # X2, tsne_loss = compute_tsne(X, cat_bool)
+    # tsne_score = np.mean(cross_val_score(RFC(), X2, y))
+    # plot_X2(X2, y, 'img/tsne{}.png'.format(name))
+    # logger.info('TSNE prediction score: {:.2}'.format(tsne_score))
 
-    X2, pca_tsne_loss = compute_tsne(X, cat_bool, init='pca')
-    plot_X2(X2, y, 'img/pca_tsne{}.png'.format(name))
-    pca_tsne_score = np.mean(cross_val_score(RFC(), X2, y))
-    logger.info('PCA+TSNE prediction score: {:.2}'.format(pca_tsne_score))
+    # X2, pca_tsne_loss = compute_tsne(X, cat_bool, init='pca')
+    # plot_X2(X2, y, 'img/pca_tsne{}.png'.format(name))
+    # pca_tsne_score = np.mean(cross_val_score(RFC(), X2, y))
+    # logger.info('PCA+TSNE prediction score: {:.2}'.format(pca_tsne_score))
 
-    X2, ae_loss = compute_ae(X)
-    plot_X2(X2, y, 'img/ae{}.png'.format(name))
-    ae_score = np.mean(cross_val_score(RFC(), X2, y))
-    logger.info('AE prediction score: {:.2}'.format(ae_score))
+    # X2, ae_loss = compute_ae(X)
+    # plot_X2(X2, y, 'img/ae{}.png'.format(name))
+    # ae_score = np.mean(cross_val_score(RFC(), X2, y))
+    # logger.info('AE prediction score: {:.2}'.format(ae_score))
 
-    X2, ae_tsne_loss = compute_ae_tsne(X, cat_bool)
-    plot_X2(X2, y, 'img/ae_tsne{}.png'.format(name))
-    ae_tsne_score = np.mean(cross_val_score(RFC(), X2, y))
-    logger.info('AE+TSNE prediction score: {:.2}'.format(ae_tsne_score))
+    # X2, ae_tsne_loss = compute_ae_tsne(X, cat_bool)
+    # plot_X2(X2, y, 'img/ae_tsne{}.png'.format(name))
+    # ae_tsne_score = np.mean(cross_val_score(RFC(), X2, y))
+    # logger.info('AE+TSNE prediction score: {:.2}'.format(ae_tsne_score))
 
-    return {'pca': pca_score, 'pca_loss': pca_loss,
-            'pca+tsne': pca_tsne_score, 'pca+tsne_loss': pca_tsne_loss,
-            'tsne': tsne_score, 'tsne_loss': tsne_loss,
-            'ae': ae_score, 'ae_loss': ae_loss,
-            'ae+tsne': ae_tsne_score, 'ae+tsne_loss': ae_tsne_loss}
+    # return {'pca': pca_score, 'pca_loss': pca_loss,
+    #         'pca+tsne': pca_tsne_score, 'pca+tsne_loss': pca_tsne_loss,
+    #         'tsne': tsne_score, 'tsne_loss': tsne_loss,
+    #         'ae': ae_score, 'ae_loss': ae_loss,
+    #         'ae+tsne': ae_tsne_score, 'ae+tsne_loss': ae_tsne_loss}
 
 
 def plot(df):
